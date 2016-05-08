@@ -2,21 +2,31 @@ from lxml import html
 import requests
 
 def getPageTree():
-    page = requests.get('http://www.pogodynka.pl/polska/prognoza_synoptyczna/warszawa_warszawa')
-    return html.fromstring(page.content)
-
+    try:
+	page = requests.get('http://www.pogodynka.pl/polska/prognoza_synoptyczna/warszawa_warszawa')
+    	return html.fromstring(page.content)
+    except requests.exceptions.ConnectionError:
+	return html.fromstring("<html></html>")
 
 def getTdFromPogodynka():
     dailyData = getPageTree().xpath('//td/text()')
     return dailyData
 
 def getDailyCloudFromPogodynka():
-    return getPageTree().xpath("//div[@id='ico_now_under']//text()")[0]
-
+    try:
+    	cloud =  getPageTree().xpath("//div[@id='ico_now_under']//text()")[0]
+	return cloud.strip(',').split(' ')
+    except IndexError:
+	return ""
 
 def getDailyTemperatureFromPogdynka():
-    return getTdFromPogodynka()[55]
-
+    try:    
+	return getTdFromPogodynka()[55][:-2] + "*C"
+    except IndexError:
+	return ""
 
 def getDailyWindFromPogodynka():
-    return getTdFromPogodynka()[56]
+    try:
+	return getTdFromPogodynka()[56]
+    except IndexError:
+	return ""
