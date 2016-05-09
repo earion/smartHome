@@ -1,14 +1,18 @@
 from lxml import html
 import requests
 from itertools import cycle
+from time import *
 
 
 class Pogodynka:
     pagetree = ""
     cloudCycle = cycle("")
+    updateTime = ""
 
     def __init__(self):
         self.pagetree = self.getPageTree()
+        self.updateTime = time()
+        self.getDailyCloudFromPogodynka()
 
     def getPageTree(self):
         try:
@@ -18,12 +22,13 @@ class Pogodynka:
             return html.fromstring("<html></html>")
 
     def updatePageTree(self):
-        newPageTree = self.getPageTree()
-        if self.pagetree != newPageTree:
-            self.pagetree = newPageTree
-            return 1
-        else:
-            return 0
+        if (time() - self.updateTime) > 10:
+            self.updateTime  = time()
+            print('request execution' + strftime("%H:%M %d %B %Y", localtime()))
+            newPageTree = self.getPageTree()
+            if self.pagetree != newPageTree:
+                self.pagetree = newPageTree
+                self.getDailyCloudFromPogodynka()
 
     def getTdFromPogodynka(self):
         self.updatePageTree()
@@ -38,10 +43,6 @@ class Pogodynka:
             self.cloudCycle = cycle("")
 
     def getCloudElement(self):
-        if self.updatePageTree() == 0:
-            return self.cloudCycle.next()
-        else:
-            self.getDailyCloudFromPogodynka()
             return self.cloudCycle.next()
 
 
@@ -53,7 +54,7 @@ class Pogodynka:
 
     def getDailyWindFromPogodynka(self):
         try:
-            wind =  self.getTdFromPogodynka()[56]
+            wind = self.getTdFromPogodynka()[56]
             return wind.strip()
         except IndexError:
             return ""

@@ -1,11 +1,7 @@
 #!/usr/bin/python
-
-from time import *
-from itertools import cycle
-
 import lcddriver
 import lcd_moc
-import platform
+
 from pogodynka import *
 from dht11 import *
 
