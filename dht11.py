@@ -1,4 +1,5 @@
 import Adafruit_DHT
+import platform
 
 # Sensor should be set to Adafruit_DHT.DHT11,
 # Adafruit_DHT.DHT22, or Adafruit_DHT.AM2302.
@@ -12,6 +13,8 @@ import Adafruit_DHT
 # Try to grab a sensor reading.  Use the read_retry method which will retry up
 # to 15 times to get a sensor reading (waiting 2 seconds between each retry).
 def getTemperatureAndHumudityInterior():
+    if platform.processor() == 'x86_64':
+        return("DHT module not supported")
     humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, 4)
 # Note that sometimes you won't get a reading and
 # the results will be null (because Linux can't
