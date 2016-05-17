@@ -2,6 +2,7 @@ from lxml import html
 import requests
 from itertools import cycle
 from time import *
+import unicodedata
 
 
 class Pogodynka:
@@ -38,13 +39,15 @@ class Pogodynka:
     def getDailyCloudFromPogodynka(self):
         try:
             cloud = self.pagetree.xpath("//div[@id='ico_now_under']//text()")[0]
-            self.cloudCycle = cycle(cloud.strip(',').split(' '))
+            cloudArray =  cloud.strip(',').split(' ')
+            self.cloudCycle = cycle(cloudArray)
         except IndexError:
             self.cloudCycle = cycle("")
 
     def getCloudElement(self):
-            return self.cloudCycle.next()
-
+        returnData = self.cloudCycle.next()
+        encoded= unicodedata.normalize('NFKD',returnData)
+	return encoded.encode('ASCII','ignore')
 
     def getDailyTemperatureFromPogdynka(self):
         try:

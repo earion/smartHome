@@ -20,3 +20,4 @@ while 1:
     wind = pogodynka.getDailyWindFromPogodynka()
     lcd.lcd_display_string("Tout=" + pogodynka.getDailyTemperatureFromPogdynka() + " Wind=" + wind, 4)
     sleep(1.5)
+    lcd.lcd_clear_line(2)
