@@ -15,7 +15,7 @@ import platform
 def getTemperatureAndHumudityInterior():
     if platform.processor() == 'x86_64':
         return("DHT module not supported")
-    humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, 4)
+    humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, 18)
 # Note that sometimes you won't get a reading and
 # the results will be null (because Linux can't
 # guarantee the timing of calls to read the sensor).
