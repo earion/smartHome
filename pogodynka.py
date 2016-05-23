@@ -9,6 +9,7 @@ class Pogodynka:
     pagetree = ""
     cloudCycle = cycle("")
     updateTime = ""
+    cloudString = ""
 
     def __init__(self):
         self.pagetree = self.getPageTree()
@@ -25,9 +26,8 @@ class Pogodynka:
     def updatePageTree(self):
         if (time() - self.updateTime) > 10:
             self.updateTime  = time()
-            print('request execution' + strftime("%H:%M %d %B %Y", localtime()))
             newPageTree = self.getPageTree()
-            if self.pagetree != newPageTree:
+            if self.pagetree != newPageTree: 
                 self.pagetree = newPageTree
                 self.getDailyCloudFromPogodynka()
 
@@ -38,16 +38,26 @@ class Pogodynka:
 
     def getDailyCloudFromPogodynka(self):
         try:
-            cloud = self.pagetree.xpath("//div[@id='ico_now_under']//text()")[0]
-            cloudArray =  cloud.strip(',').split(' ')
+            cloudString = self.pagetree.xpath("//div[@id='ico_now_under']//text()")[0]
+            if self.cloudString != cloudString:
+                print(cloudString + ' changed on '  + strftime("%H:%M %d %B %Y", localtime())) 
+                self.cloudString = cloudString
+            cloudArray =  cloudString.strip(',').split(' ')
             self.cloudCycle = cycle(cloudArray)
         except IndexError:
             self.cloudCycle = cycle("")
 
     def getCloudElement(self):
-        returnData = self.cloudCycle.next()
-        encoded= unicodedata.normalize('NFKD',returnData)
-	return encoded.encode('ASCII','ignore')
+        try:
+            returnData = self.cloudCycle.next()
+            if isinstance(returnData,str):
+               return returnData
+            else:
+               encoded= unicodedata.normalize('NFKD',returnData)
+               return encoded.encode('ASCII','ignore')
+        except StopIteration:
+            return "empty"
+
 
     def getDailyTemperatureFromPogdynka(self):
         try:

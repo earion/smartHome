@@ -96,9 +96,6 @@ class lcd:
       for char in string:
          self.lcd_write(ord(char), Rs)
 
-   #clear line
-   def lcd_clear_line(self,line):
-      self.lcd_display_string('                  ',line)
 
 
 

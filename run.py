@@ -1,23 +1,47 @@
 #!/usr/bin/env python
-import lcddriver
-import lcd_moc
+
 import logging
 import logging.handlers
 import argparse
-import sys
+import RPi.GPIO as GPIO
 
+from four20lcd import *
 from pogodynka import *
 from dht11 import *
+from cpuInfo import *
 
 
+inPin1,inPin2 = 15,16
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(inPin1,GPIO.IN)
+GPIO.setup(inPin2,GPIO.IN)
 
+
+global i
+i = 0
+
+def buttonUpEventHandler (pin):
+    global i
+    print "handling buttonUp event"
+    i=i+1
+    
+def buttonDownEventHandler (pin):
+    global i
+    print "handling buttonDown event"
+    i=i-1
+    
+GPIO.add_event_detect(inPin1,GPIO.FALLING)
+GPIO.add_event_callback(inPin1,buttonUpEventHandler)
+
+GPIO.add_event_detect(inPin2,GPIO.FALLING)
+GPIO.add_event_callback(inPin2,buttonDownEventHandler)
 
 # Deafults
 LOG_FILENAME = "/tmp/myservice.log"
 LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
 
 # Define and parse command line arguments
-parser = argparse.ArgumentParser(description="My simple Python service")
+parser = argparse.ArgumentParser(description="wStation")
 parser.add_argument("-l", "--log", help="file to write log to (default '" + LOG_FILENAME + "')")
 
 # If the log file is specified on the command line then override the default
@@ -52,25 +76,32 @@ class MyLogger(object):
                 if message.rstrip() != "":
                         self.logger.log(self.level, message.rstrip())
 
+if args.log:
 # Replace stdout with logging to file at INFO level
-sys.stdout = MyLogger(logger, logging.INFO)
+    sys.stdout = MyLogger(logger, logging.INFO)
 # Replace stderr with logging to file at ERROR level
-sys.stderr = MyLogger(logger, logging.ERROR)
+    sys.stderr = MyLogger(logger, logging.ERROR)
 
-logger.info("Run my personal Weather station")
+print("Run my personal Weather station")
 
-if platform.processor() != 'x86_64':
-    lcd = lcddriver.lcd()
-    lcd.lcd_clear()
-else:
-    lcd = lcd_moc.LcdMoc()
-
+lcd = four20lcd()
 pogodynka = Pogodynka()
-while 1:
-    lcd.lcd_display_string(strftime("%H:%M %d %B %Y", localtime()), 1)
-    lcd.lcd_display_string(pogodynka.getCloudElement(), 2)
-    lcd.lcd_display_string(getTemperatureAndHumudityInterior(), 3)
-    wind = pogodynka.getDailyWindFromPogodynka()
-    lcd.lcd_display_string("Tout=" + pogodynka.getDailyTemperatureFromPogdynka() + " Wind=" + wind, 4)
-    sleep(1.5)
-    lcd.lcd_clear_line(2)
+lcd.lcd_display_line('Stacja Pogodowa',1)
+lcd.lcd_display_line('    Mateusza   ',2)
+sleep(2)
+lcd.lcd_clear()
+
+
+
+
+wStationData = ['                   ','                    ','                    ','                    ','                    ','                    ','                    ','                    ']
+while True:
+  wStationData[0] = strftime("%H:%M %d %B %Y", localtime())
+  wStationData[1] = pogodynka.getCloudElement()
+  wStationData[2] = getTemperatureAndHumudityInterior()
+  wStationData[3] = "Tout=" + pogodynka.getDailyTemperatureFromPogdynka() + " Wind=" + pogodynka.getDailyWindFromPogodynka()
+  wStationData[4] = "CPU=" + getCpuUse() + " Temp=" + getCpuTemperature() + "*C"
+  lcd.lcd_display_line(wStationData[i], 1)
+  lcd.lcd_display_line(wStationData[i+1], 2)
+  lcd.lcd_display_line(wStationData[i+2], 3)
+  lcd.lcd_display_line(wStationData[i+3], 4)
