@@ -101,6 +101,7 @@ while True:
   wStationData[2] = getTemperatureAndHumudityInterior()
   wStationData[3] = "Tout=" + pogodynka.getDailyTemperatureFromPogdynka() + " Wind=" + pogodynka.getDailyWindFromPogodynka()
   wStationData[4] = "CPU=" + getCpuUse() + " Temp=" + getCpuTemperature() + "*C"
+  print(wStationData[3])
   lcd.lcd_display_line(wStationData[i], 1)
   lcd.lcd_display_line(wStationData[i+1], 2)
   lcd.lcd_display_line(wStationData[i+2], 3)

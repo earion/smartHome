@@ -71,3 +71,11 @@ class Pogodynka:
             return wind.strip()
         except IndexError:
             return ""
+
+
+
+#if __name__ == "__main__":
+#  pogodynka = Pogodynka()
+#  for i in range(1,100):
+#    print(pogodynka.getTdFromPogodynka()[i]
+
